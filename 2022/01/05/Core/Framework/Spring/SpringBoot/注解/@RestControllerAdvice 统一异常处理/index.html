@@ -1,149 +1,463 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>@RestControllerAdvice 统一异常处理 | La La Land</title><meta name="author" content="czk997"><meta name="copyright" content="czk997"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="在做前后端分离的项目时，后端通常都会拆分成多个独立的微服务，这时候就会涉及每个服务返回给前端的数据格式问题了。下面就来实现一个比较常用的数据格式，统一所有服务的返回值格式。 一般返回的数据格式会包括4个部分，第一部分： 请求处理是否成功，第二部分：服务处理结果编码，第三部分：编码对应的文本信息，第四部分：返回值。如下所示： 12345678910&amp;#123;    &quot;result&amp;quo">
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="czk997">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="在做前后端分离的项目时，后端通常都会拆分成多个独立的微服务，这时候就会涉及每个服务返回给前端的数据格式问题了。下面就来实现一个比较常用的数据格式，统一所有服务的返回值格式。 一般返回的数据格式会包括4个部分，第一部分： 请求处理是否成功，第二部分：服务处理结果编码，第三部分：编码对应的文本信息，第四部分：返回值。如下所示： 12345678910&amp;#123;    &quot;result&amp;quo">
 <meta property="og:type" content="article">
 <meta property="og:title" content="@RestControllerAdvice 统一异常处理">
 <meta property="og:url" content="https://czk997.github.io/2022/01/05/Core/Framework/Spring/SpringBoot/%E6%B3%A8%E8%A7%A3/@RestControllerAdvice%20%E7%BB%9F%E4%B8%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/">
 <meta property="og:site_name" content="La La Land">
 <meta property="og:description" content="在做前后端分离的项目时，后端通常都会拆分成多个独立的微服务，这时候就会涉及每个服务返回给前端的数据格式问题了。下面就来实现一个比较常用的数据格式，统一所有服务的返回值格式。 一般返回的数据格式会包括4个部分，第一部分： 请求处理是否成功，第二部分：服务处理结果编码，第三部分：编码对应的文本信息，第四部分：返回值。如下所示： 12345678910&amp;#123;    &quot;result&amp;quo">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg">
-<meta property="article:published_time" content="2022-01-05T08:36:04.638Z">
-<meta property="article:modified_time" content="2022-01-05T08:36:04.638Z">
+<meta property="og:image" content="https://math.jianshu.com/math?formula=%5Ccolor%7B%20red%20%7D%7B%20%E5%BD%93%E7%84%B6%E4%B9%9F%E5%8F%AF%E4%BB%A5%E5%8D%95%E7%8B%AC%E5%86%99%E6%88%90%E4%B8%80%E4%B8%AAjar%E5%8C%85%EF%BC%8C%E4%BE%9B%E5%85%B6%E4%BB%96%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%9A%84%E4%BD%BF%E7%94%A8%E3%80%82%20%7D">
+<meta property="article:published_time" content="2022-01-05T10:14:15.918Z">
+<meta property="article:modified_time" content="2022-01-05T10:14:15.918Z">
 <meta property="article:author" content="czk997">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg"><link rel="shortcut icon" href="/images/favicon.png"><link rel="canonical" href="https://czk997.github.io/2022/01/05/Core/Framework/Spring/SpringBoot/%E6%B3%A8%E8%A7%A3/@RestControllerAdvice%20%E7%BB%9F%E4%B8%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
-  root: '/',
-  algolia: undefined,
-  localSearch: undefined,
-  translate: undefined,
-  noticeOutdate: undefined,
-  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
-  copy: {
-    success: '复制成功',
-    error: '复制错误',
-    noSupport: '浏览器不支持'
-  },
-  relativeDate: {
-    homepage: true,
-    post: false
-  },
-  runtime: '',
-  date_suffix: {
-    just: '刚刚',
-    min: '分钟前',
-    hour: '小时前',
-    day: '天前',
-    month: '个月前'
-  },
-  copyright: undefined,
-  lightbox: 'fancybox',
-  Snackbar: undefined,
-  source: {
-    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
-    justifiedGallery: {
-      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
-      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
-    },
-    fancybox: {
-      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
-      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
-    }
-  },
-  isPhotoFigcaption: false,
-  islazyload: false,
-  isanchor: true
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: '@RestControllerAdvice 统一异常处理',
-  isPost: true,
-  isHome: false,
-  isHighlightShrink: false,
-  isToc: true,
-  postUpdate: '2022-01-05 16:36:04'
-}</script><noscript><style type="text/css">
-  #nav {
-    opacity: 1
-  }
-  .justified-gallery img {
-    opacity: 1
-  }
-
-  #recent-posts time,
-  #post-meta time {
-    display: inline !important
-  }
-</style></noscript><script>(win=>{
-    win.saveToLocal = {
-      set: function setWithExpiry(key, value, ttl) {
-        if (ttl === 0) return
-        const now = new Date()
-        const expiryDay = ttl * 86400000
-        const item = {
-          value: value,
-          expiry: now.getTime() + expiryDay,
-        }
-        localStorage.setItem(key, JSON.stringify(item))
-      },
-
-      get: function getWithExpiry(key) {
-        const itemStr = localStorage.getItem(key)
-
-        if (!itemStr) {
-          return undefined
-        }
-        const item = JSON.parse(itemStr)
-        const now = new Date()
-
-        if (now.getTime() > item.expiry) {
-          localStorage.removeItem(key)
-          return undefined
-        }
-        return item.value
-      }
-    }
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://math.jianshu.com/math?formula=%5Ccolor%7B%20red%20%7D%7B%20%E5%BD%93%E7%84%B6%E4%B9%9F%E5%8F%AF%E4%BB%A5%E5%8D%95%E7%8B%AC%E5%86%99%E6%88%90%E4%B8%80%E4%B8%AAjar%E5%8C%85%EF%BC%8C%E4%BE%9B%E5%85%B6%E4%BB%96%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%9A%84%E4%BD%BF%E7%94%A8%E3%80%82%20%7D">
   
-    win.getScript = url => new Promise((resolve, reject) => {
-      const script = document.createElement('script')
-      script.src = url
-      script.async = true
-      script.onerror = reject
-      script.onload = script.onreadystatechange = function() {
-        const loadState = this.readyState
-        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-        script.onload = script.onreadystatechange = null
-        resolve()
-      }
-      document.head.appendChild(script)
-    })
   
-    const detectApple = () => {
-      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
-        document.documentElement.classList.add('apple')
-      }
-    }
-    detectApple()
-    })(window)</script><meta name="generator" content="Hexo 6.0.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/images/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">58</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">51</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-folder-open"></i><span> Core</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/Core/Java/"><span> Java</span></a></li><li><a class="site-page child" href="/categories/Core/Framework/"><span> Framework</span></a></li><li><a class="site-page child" href="/categories/Core/Algorithm/"><span> Algorithm</span></a></li><li><a class="site-page child" href="/categories/Core/DesignPattern/"><span> DesignPattern</span></a></li><li><a class="site-page child" href="/categories/Core/Network/"><span> Network</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-database"></i><span> Database</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/Database/NoSQL/Redis/"><span> Redis</span></a></li><li><a class="site-page child" href="/categories/Database/SQL/MySQL/"><span> MySQL</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-project-diagram"></i><span> Projects</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/Projects/Yango/"><span> Yango</span></a></li><li><a class="site-page child" href="/categories/Projects/LowCode/"><span> LowCode</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-tools"></i><span> Tools</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/Tools/Git/"><span> Git</span></a></li><li><a class="site-page child" href="/categories/Tools/IDEA/"><span> IDEA</span></a></li><li><a class="site-page child" href="/categories/Tools/Maven/"><span> Maven</span></a></li><li><a class="site-page child" href="/categories/Tools/Ningx/"><span> Ningx</span></a></li><li><a class="site-page child" href="/categories/Tools/Linux/"><span> Linux</span></a></li><li><a class="site-page child" href="/categories/Tools/Docker/"><span> Docker</span></a></li><li><a class="site-page child" href="/categories/Tools/Jenkins/"><span> Jenkins</span></a></li><li><a class="site-page child" href="/categories/Tools/Kubernetes/"><span> Kubernetes</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">La La Land</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-folder-open"></i><span> Core</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/Core/Java/"><span> Java</span></a></li><li><a class="site-page child" href="/categories/Core/Framework/"><span> Framework</span></a></li><li><a class="site-page child" href="/categories/Core/Algorithm/"><span> Algorithm</span></a></li><li><a class="site-page child" href="/categories/Core/DesignPattern/"><span> DesignPattern</span></a></li><li><a class="site-page child" href="/categories/Core/Network/"><span> Network</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-database"></i><span> Database</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/Database/NoSQL/Redis/"><span> Redis</span></a></li><li><a class="site-page child" href="/categories/Database/SQL/MySQL/"><span> MySQL</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-project-diagram"></i><span> Projects</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/Projects/Yango/"><span> Yango</span></a></li><li><a class="site-page child" href="/categories/Projects/LowCode/"><span> LowCode</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-tools"></i><span> Tools</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/Tools/Git/"><span> Git</span></a></li><li><a class="site-page child" href="/categories/Tools/IDEA/"><span> IDEA</span></a></li><li><a class="site-page child" href="/categories/Tools/Maven/"><span> Maven</span></a></li><li><a class="site-page child" href="/categories/Tools/Ningx/"><span> Ningx</span></a></li><li><a class="site-page child" href="/categories/Tools/Linux/"><span> Linux</span></a></li><li><a class="site-page child" href="/categories/Tools/Docker/"><span> Docker</span></a></li><li><a class="site-page child" href="/categories/Tools/Jenkins/"><span> Jenkins</span></a></li><li><a class="site-page child" href="/categories/Tools/Kubernetes/"><span> Kubernetes</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">@RestControllerAdvice 统一异常处理</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-01-05T08:36:04.638Z" title="发表于 2022-01-05 16:36:04">2022-01-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-01-05T08:36:04.638Z" title="更新于 2022-01-05 16:36:04">2022-01-05</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Core/">Core</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Core/Framework/">Framework</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Core/Framework/Spring/">Spring</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Core/Framework/Spring/SpringBoot/">SpringBoot</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Core/Framework/Spring/SpringBoot/%E6%B3%A8%E8%A7%A3/">注解</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="@RestControllerAdvice 统一异常处理"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div><article class="post-content" id="article-container"><p>在做前后端分离的项目时，后端通常都会拆分成多个独立的微服务，这时候就会涉及每个服务返回给前端的数据格式问题了。下面就来实现一个比较常用的数据格式，统一所有服务的返回值格式。<br> 一般返回的数据格式会包括4个部分，第一部分： 请求处理是否成功，第二部分：服务处理结果编码，第三部分：编码对应的文本信息，第四部分：返回值。如下所示：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;result&quot;</span>: <span class="literal">true</span>,</span><br><span class="line">    <span class="attr">&quot;code&quot;</span>: <span class="number">1000</span>,</span><br><span class="line">    <span class="attr">&quot;message&quot;</span>: <span class="string">&quot;SUCCESS&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;data&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;lantian&quot;</span>: <span class="number">17</span>,</span><br><span class="line">        <span class="attr">&quot;qingfen&quot;</span>: <span class="number">16</span>,</span><br><span class="line">        <span class="attr">&quot;baiyun&quot;</span>: <span class="number">18</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+  <title>@RestControllerAdvice 统一异常处理 - La La Land</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"czk997.github.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.0.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Fluid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="@RestControllerAdvice 统一异常处理">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-01-05 18:14" pubdate>
+        星期三, 一月 5日 2022, 6:14 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">@RestControllerAdvice 统一异常处理</h1>
+            
+            <div class="markdown-body">
+              <p>在做前后端分离的项目时，后端通常都会拆分成多个独立的微服务，这时候就会涉及每个服务返回给前端的数据格式问题了。下面就来实现一个比较常用的数据格式，统一所有服务的返回值格式。<br> 一般返回的数据格式会包括4个部分，第一部分： 请求处理是否成功，第二部分：服务处理结果编码，第三部分：编码对应的文本信息，第四部分：返回值。如下所示：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><pre><code class="hljs json">&#123;<br>    <span class="hljs-attr">&quot;result&quot;</span>: <span class="hljs-literal">true</span>,<br>    <span class="hljs-attr">&quot;code&quot;</span>: <span class="hljs-number">1000</span>,<br>    <span class="hljs-attr">&quot;message&quot;</span>: <span class="hljs-string">&quot;SUCCESS&quot;</span>,<br>    <span class="hljs-attr">&quot;data&quot;</span>: &#123;<br>        <span class="hljs-attr">&quot;lantian&quot;</span>: <span class="hljs-number">17</span>,<br>        <span class="hljs-attr">&quot;qingfen&quot;</span>: <span class="hljs-number">16</span>,<br>        <span class="hljs-attr">&quot;baiyun&quot;</span>: <span class="hljs-number">18</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>对于异常处理情况，我们也需要统一成上面的格式。如果我们在controller中通过try catch来处理异常的话，会出现一个问题就是每个函数里都加一个Try catch,代码会变的很乱。下面我们就通过spring boot的注解来省略掉controller中的try-catch 帮助我们来封装异常信息并返回给前端，这样用户也不会得到一些奇奇怪怪的错误提示。</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;result&quot;</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">&quot;code&quot;</span>: <span class="number">3000</span>,</span><br><span class="line">    <span class="attr">&quot;message&quot;</span>: <span class="string">&quot;THIS IS AN UNKNOW EXCEPTION&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;data&quot;</span>: <span class="literal">null</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs json">&#123;<br>    <span class="hljs-attr">&quot;result&quot;</span>: <span class="hljs-literal">false</span>,<br>    <span class="hljs-attr">&quot;code&quot;</span>: <span class="hljs-number">3000</span>,<br>    <span class="hljs-attr">&quot;message&quot;</span>: <span class="hljs-string">&quot;THIS IS AN UNKNOW EXCEPTION&quot;</span>,<br>    <span class="hljs-attr">&quot;data&quot;</span>: <span class="hljs-literal">null</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
-<h3 id="1：定义返回值结构信息（get-set函数省略）"><a href="#1：定义返回值结构信息（get-set函数省略）" class="headerlink" title="1：定义返回值结构信息（get, set函数省略）"></a>1：定义返回值结构信息（get, set函数省略）</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CallResultMsg</span>&lt;</span>T&gt; &#123;</span><br><span class="line">    <span class="keyword">private</span> boolean result;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> code;</span><br><span class="line">    <span class="keyword">private</span> String message;</span><br><span class="line">    <span class="keyword">private</span> T data;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="1：定义返回值结构信息（get-set函数省略）"><a href="#1：定义返回值结构信息（get-set函数省略）" class="headerlink" title="1：定义返回值结构信息（get, set函数省略）"></a>1：定义返回值结构信息（get, set函数省略）</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CallResultMsg</span>&lt;</span>T&gt; &#123;<br>    <span class="hljs-keyword">private</span> boolean result;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> code;<br>    <span class="hljs-keyword">private</span> String message;<br>    <span class="hljs-keyword">private</span> T data;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<h3 id="2：定义返回值和对应code的信息（get-set函数省略）"><a href="#2：定义返回值和对应code的信息（get-set函数省略）" class="headerlink" title="2：定义返回值和对应code的信息（get, set函数省略）"></a>2：定义返回值和对应code的信息（get, set函数省略）</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">enum</span> <span class="title">CodeAndMsg</span> &#123;</span></span><br><span class="line">    <span class="built_in">SUCCESS</span>(<span class="number">1000</span>, <span class="string">&quot;SUCCESS&quot;</span>),</span><br><span class="line">    <span class="built_in">METHODFAIL</span>(<span class="number">2000</span>, <span class="string">&quot;ENCOUNTER AN ERROR WHEN EXECUTE METHOD&quot;</span>),</span><br><span class="line">    <span class="built_in">UNKNOWEXCEPTION</span>(<span class="number">3000</span>, <span class="string">&quot;THIS IS AN UNKNOW EXCEPTION&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> code;</span><br><span class="line">    <span class="keyword">private</span> String msg;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">CodeAndMsg</span>(<span class="keyword">int</span> code, String msg)&#123;</span><br><span class="line">        <span class="keyword">this</span>.code = code;</span><br><span class="line">        <span class="keyword">this</span>.msg = msg;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2：定义返回值和对应code的信息（get-set函数省略）"><a href="#2：定义返回值和对应code的信息（get-set函数省略）" class="headerlink" title="2：定义返回值和对应code的信息（get, set函数省略）"></a>2：定义返回值和对应code的信息（get, set函数省略）</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">CodeAndMsg</span> &#123;</span><br>    <span class="hljs-built_in">SUCCESS</span>(<span class="hljs-number">1000</span>, <span class="hljs-string">&quot;SUCCESS&quot;</span>),<br>    <span class="hljs-built_in">METHODFAIL</span>(<span class="hljs-number">2000</span>, <span class="hljs-string">&quot;ENCOUNTER AN ERROR WHEN EXECUTE METHOD&quot;</span>),<br>    <span class="hljs-built_in">UNKNOWEXCEPTION</span>(<span class="hljs-number">3000</span>, <span class="hljs-string">&quot;THIS IS AN UNKNOW EXCEPTION&quot;</span>);<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> code;<br>    <span class="hljs-keyword">private</span> String msg;<br><br>    <span class="hljs-built_in">CodeAndMsg</span>(<span class="hljs-keyword">int</span> code, String msg)&#123;<br>        <span class="hljs-keyword">this</span>.code = code;<br>        <span class="hljs-keyword">this</span>.msg = msg;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <h3 id="3：自定义异常"><a href="#3：自定义异常" class="headerlink" title="3：自定义异常"></a>3：自定义异常</h3><p>对于一些特别的异常，我们可以自定义Exception和Error Code,这里自定义一个异常（需要继承RuntimeException）</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserDefinedException</span> <span class="keyword">extends</span> <span class="title">RuntimeException</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> CodeAndMsg <span class="built_in">exception</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> UserDefinedException(CodeAndMsg <span class="built_in">exception</span>)&#123;</span><br><span class="line">        this.<span class="built_in">exception</span> = <span class="built_in">exception</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> CodeAndMsg getException() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">exception</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> setException(CodeAndMsg <span class="built_in">exception</span>) &#123;</span><br><span class="line">        this.<span class="built_in">exception</span> = <span class="built_in">exception</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserDefinedException</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">RuntimeException</span> </span>&#123;<br>    <span class="hljs-keyword">private</span> CodeAndMsg <span class="hljs-built_in">exception</span>;<br><br>    <span class="hljs-keyword">public</span> UserDefinedException(CodeAndMsg <span class="hljs-built_in">exception</span>)&#123;<br>        this.<span class="hljs-built_in">exception</span> = <span class="hljs-built_in">exception</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> CodeAndMsg getException() &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">exception</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> setException(CodeAndMsg <span class="hljs-built_in">exception</span>) &#123;<br>        this.<span class="hljs-built_in">exception</span> = <span class="hljs-built_in">exception</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <h3 id="4：RestControllerAdvice来捕获全局异常，"><a href="#4：RestControllerAdvice来捕获全局异常，" class="headerlink" title="4：RestControllerAdvice来捕获全局异常，"></a>4：RestControllerAdvice来捕获全局异常，</h3><p>@RestControllerAdvice都是对Controller进行增强的，可以全局捕获spring mvc抛的异常。<br> @ExceptionHandler(value = Exception.class)<br> ExceptionHandler的作用是用来捕获指定的异常。</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestControllerAdvice(annotations = RestController.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UniformReponseHandler</span>&lt;<span class="type">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ResponseStatus(HttpStatus.OK)</span></span><br><span class="line">    <span class="keyword">public</span> CallResultMsg sendSuccessResponse()&#123;</span><br><span class="line">        <span class="keyword">return</span> new CallResultMsg(<span class="literal">true</span>, CodeAndMsg.SUCCESS, <span class="literal">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ResponseStatus(HttpStatus.OK)</span></span><br><span class="line">    <span class="keyword">public</span> CallResultMsg sendSuccessResponse(T <span class="keyword">data</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> new CallResultMsg(<span class="literal">true</span>, CodeAndMsg.SUCCESS, <span class="keyword">data</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ExceptionHandler(UserDefinedException.class)</span></span><br><span class="line">    <span class="meta">@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)</span></span><br><span class="line">    <span class="keyword">public</span> CallResultMsg sendErrorResponse_UserDefined(Exception exception)&#123;</span><br><span class="line">        <span class="keyword">return</span> new CallResultMsg(<span class="literal">false</span>, ((UserDefinedException)exception).getException(), <span class="literal">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ExceptionHandler(Exception.class)</span></span><br><span class="line">    <span class="meta">@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)</span></span><br><span class="line">    <span class="keyword">public</span> CallResultMsg sendErrorResponse_System(Exception exception)&#123;</span><br><span class="line">        <span class="keyword">if</span> (exception instanceof UserDefinedException) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.sendErrorResponse_UserDefined(exception);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> new CallResultMsg(<span class="literal">false</span>, CodeAndMsg.UNKNOWEXCEPTION, <span class="literal">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs kotlin"><span class="hljs-meta">@RestControllerAdvice(annotations = RestController.class)</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UniformReponseHandler</span>&lt;<span class="hljs-type">T</span>&gt; </span>&#123;<br><br>    <span class="hljs-meta">@ResponseStatus(HttpStatus.OK)</span><br>    <span class="hljs-keyword">public</span> CallResultMsg sendSuccessResponse()&#123;<br>        <span class="hljs-keyword">return</span> new CallResultMsg(<span class="hljs-literal">true</span>, CodeAndMsg.SUCCESS, <span class="hljs-literal">null</span>);<br>    &#125;<br><br>    <span class="hljs-meta">@ResponseStatus(HttpStatus.OK)</span><br>    <span class="hljs-keyword">public</span> CallResultMsg sendSuccessResponse(T <span class="hljs-keyword">data</span>) &#123;<br>        <span class="hljs-keyword">return</span> new CallResultMsg(<span class="hljs-literal">true</span>, CodeAndMsg.SUCCESS, <span class="hljs-keyword">data</span>);<br>    &#125;<br><br>    <span class="hljs-meta">@ExceptionHandler(UserDefinedException.class)</span><br>    <span class="hljs-meta">@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)</span><br>    <span class="hljs-keyword">public</span> CallResultMsg sendErrorResponse_UserDefined(Exception exception)&#123;<br>        <span class="hljs-keyword">return</span> new CallResultMsg(<span class="hljs-literal">false</span>, ((UserDefinedException)exception).getException(), <span class="hljs-literal">null</span>);<br>    &#125;<br><br>    <span class="hljs-meta">@ExceptionHandler(Exception.class)</span><br>    <span class="hljs-meta">@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)</span><br>    <span class="hljs-keyword">public</span> CallResultMsg sendErrorResponse_System(Exception exception)&#123;<br>        <span class="hljs-keyword">if</span> (exception instanceof UserDefinedException) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.sendErrorResponse_UserDefined(exception);<br>        &#125;<br><br>        <span class="hljs-keyword">return</span> new CallResultMsg(<span class="hljs-literal">false</span>, CodeAndMsg.UNKNOWEXCEPTION, <span class="hljs-literal">null</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<p>通过上面的一波操作，我们的controller中就不需要再去写大量的try-catch了，RestControllerAdvice会自动帮助catch,并匹配相应的ExceptionHandler,然后重新封装异常信息，返回值，统一格式返回给前端。<br> <img src="https://math.jianshu.com/math?formula=%5Ccolor%7B%20red%20%7D%7B%20%E5%BD%93%E7%84%B6%E4%B9%9F%E5%8F%AF%E4%BB%A5%E5%8D%95%E7%8B%AC%E5%86%99%E6%88%90%E4%B8%80%E4%B8%AAjar%E5%8C%85%EF%BC%8C%E4%BE%9B%E5%85%B6%E4%BB%96%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%9A%84%E4%BD%BF%E7%94%A8%E3%80%82%20%7D" alt="\color{ red }{ 当然也可以单独写成一个jar包，供其他微服务的使用。 }"></p>
+<p>通过上面的一波操作，我们的controller中就不需要再去写大量的try-catch了，RestControllerAdvice会自动帮助catch,并匹配相应的ExceptionHandler,然后重新封装异常信息，返回值，统一格式返回给前端。<br> <img src="https://math.jianshu.com/math?formula=%5Ccolor%7B%20red%20%7D%7B%20%E5%BD%93%E7%84%B6%E4%B9%9F%E5%8F%AF%E4%BB%A5%E5%8D%95%E7%8B%AC%E5%86%99%E6%88%90%E4%B8%80%E4%B8%AAjar%E5%8C%85%EF%BC%8C%E4%BE%9B%E5%85%B6%E4%BB%96%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%9A%84%E4%BD%BF%E7%94%A8%E3%80%82%20%7D" srcset="/img/loading.gif" lazyload alt="\color{ red }{ 当然也可以单独写成一个jar包，供其他微服务的使用。 }"></p>
 <h3 id="5：ControllerAdvice-和-RestControllerAdvice的区别"><a href="#5：ControllerAdvice-和-RestControllerAdvice的区别" class="headerlink" title="5：ControllerAdvice 和 RestControllerAdvice的区别"></a>5：ControllerAdvice 和 RestControllerAdvice的区别</h3><p>@ControllerAdvice 和 @RestControllerAdvice都是对Controller进行增强的，可以全局捕获spring mvc抛的异常。<br> RestControllerAdvice = ControllerAdvice + ResponseBody<br> 6：测试统一异常捕获功能</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">@<span class="built_in">GetMapping</span>(<span class="string">&quot;/doTestObject&quot;</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> CallResultMsg <span class="title">testObjectReturn</span><span class="params">()</span></span>&#123;</span><br><span class="line">    Map&lt;String, Integer&gt; map = <span class="keyword">new</span> <span class="built_in">HashMap</span>();</span><br><span class="line">    map.<span class="built_in">put</span>(<span class="string">&quot;qingfen&quot;</span>, <span class="number">16</span>);</span><br><span class="line">    map.<span class="built_in">put</span>(<span class="string">&quot;lantian&quot;</span>, <span class="number">17</span>);</span><br><span class="line">    map.<span class="built_in">put</span>(<span class="string">&quot;baiyun&quot;</span>, <span class="number">18</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> UniformReponseHandler&lt;Map&gt;().<span class="built_in">sendSuccessResponse</span>(map);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">@<span class="built_in">GetMapping</span>(<span class="string">&quot;/doTestException/&#123;x&#125;&quot;</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">testExceptionResturn</span><span class="params">(@PathVariable <span class="keyword">int</span> x)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="number">0</span> &lt; x &amp;&amp; x &lt; <span class="number">10</span>)&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">UserDefinedException</span>(CodeAndMsg.METHODFAIL);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span>  <span class="number">1</span>/<span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp">@<span class="hljs-built_in">GetMapping</span>(<span class="hljs-string">&quot;/doTestObject&quot;</span>)<br><span class="hljs-function"><span class="hljs-keyword">public</span> CallResultMsg <span class="hljs-title">testObjectReturn</span><span class="hljs-params">()</span></span>&#123;<br>    Map&lt;String, Integer&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-built_in">HashMap</span>();<br>    map.<span class="hljs-built_in">put</span>(<span class="hljs-string">&quot;qingfen&quot;</span>, <span class="hljs-number">16</span>);<br>    map.<span class="hljs-built_in">put</span>(<span class="hljs-string">&quot;lantian&quot;</span>, <span class="hljs-number">17</span>);<br>    map.<span class="hljs-built_in">put</span>(<span class="hljs-string">&quot;baiyun&quot;</span>, <span class="hljs-number">18</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> UniformReponseHandler&lt;Map&gt;().<span class="hljs-built_in">sendSuccessResponse</span>(map);<br>&#125;<br><br><br>@<span class="hljs-built_in">GetMapping</span>(<span class="hljs-string">&quot;/doTestException/&#123;x&#125;&quot;</span>)<br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">testExceptionResturn</span><span class="hljs-params">(@PathVariable <span class="hljs-keyword">int</span> x)</span></span>&#123;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-number">0</span> &lt; x &amp;&amp; x &lt; <span class="hljs-number">10</span>)&#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">UserDefinedException</span>(CodeAndMsg.METHODFAIL);<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">return</span>  <span class="hljs-number">1</span>/<span class="hljs-number">0</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>返回结果：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;result&quot;</span>: <span class="literal">true</span>,</span><br><span class="line">    <span class="attr">&quot;code&quot;</span>: <span class="number">1000</span>,</span><br><span class="line">    <span class="attr">&quot;message&quot;</span>: <span class="string">&quot;SUCCESS&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;data&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;lantian&quot;</span>: <span class="number">17</span>,</span><br><span class="line">        <span class="attr">&quot;qingfen&quot;</span>: <span class="number">16</span>,</span><br><span class="line">        <span class="attr">&quot;baiyun&quot;</span>: <span class="number">18</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;result&quot;</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">&quot;code&quot;</span>: <span class="number">2000</span>,</span><br><span class="line">    <span class="attr">&quot;message&quot;</span>: <span class="string">&quot;ENCOUNTER AN ERROR WHEN EXECUTE METHOD &quot;</span>,</span><br><span class="line">    <span class="attr">&quot;data&quot;</span>: <span class="literal">null</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs json">&#123;<br>    <span class="hljs-attr">&quot;result&quot;</span>: <span class="hljs-literal">true</span>,<br>    <span class="hljs-attr">&quot;code&quot;</span>: <span class="hljs-number">1000</span>,<br>    <span class="hljs-attr">&quot;message&quot;</span>: <span class="hljs-string">&quot;SUCCESS&quot;</span>,<br>    <span class="hljs-attr">&quot;data&quot;</span>: &#123;<br>        <span class="hljs-attr">&quot;lantian&quot;</span>: <span class="hljs-number">17</span>,<br>        <span class="hljs-attr">&quot;qingfen&quot;</span>: <span class="hljs-number">16</span>,<br>        <span class="hljs-attr">&quot;baiyun&quot;</span>: <span class="hljs-number">18</span><br>    &#125;<br>&#125;<br>&#123;<br>    <span class="hljs-attr">&quot;result&quot;</span>: <span class="hljs-literal">false</span>,<br>    <span class="hljs-attr">&quot;code&quot;</span>: <span class="hljs-number">2000</span>,<br>    <span class="hljs-attr">&quot;message&quot;</span>: <span class="hljs-string">&quot;ENCOUNTER AN ERROR WHEN EXECUTE METHOD &quot;</span>,<br>    <span class="hljs-attr">&quot;data&quot;</span>: <span class="hljs-literal">null</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
 
 
 <p>作者：蓉漂里的小白<br>链接：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/47aeeba6414c">https://www.jianshu.com/p/47aeeba6414c</a><br>来源：简书<br>著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</p>
-</article><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/images/avatar.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">czk997</div><div class="author-info__description"></div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">58</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">51</div></a></div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%EF%BC%9A%E5%AE%9A%E4%B9%89%E8%BF%94%E5%9B%9E%E5%80%BC%E7%BB%93%E6%9E%84%E4%BF%A1%E6%81%AF%EF%BC%88get-set%E5%87%BD%E6%95%B0%E7%9C%81%E7%95%A5%EF%BC%89"><span class="toc-number">1.</span> <span class="toc-text">1：定义返回值结构信息（get, set函数省略）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%EF%BC%9A%E5%AE%9A%E4%B9%89%E8%BF%94%E5%9B%9E%E5%80%BC%E5%92%8C%E5%AF%B9%E5%BA%94code%E7%9A%84%E4%BF%A1%E6%81%AF%EF%BC%88get-set%E5%87%BD%E6%95%B0%E7%9C%81%E7%95%A5%EF%BC%89"><span class="toc-number">2.</span> <span class="toc-text">2：定义返回值和对应code的信息（get, set函数省略）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%EF%BC%9A%E8%87%AA%E5%AE%9A%E4%B9%89%E5%BC%82%E5%B8%B8"><span class="toc-number">3.</span> <span class="toc-text">3：自定义异常</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%EF%BC%9ARestControllerAdvice%E6%9D%A5%E6%8D%95%E8%8E%B7%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%EF%BC%8C"><span class="toc-number">4.</span> <span class="toc-text">4：RestControllerAdvice来捕获全局异常，</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5%EF%BC%9AControllerAdvice-%E5%92%8C-RestControllerAdvice%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">5.</span> <span class="toc-text">5：ControllerAdvice 和 RestControllerAdvice的区别</span></a></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2021 - 2022 By czk997</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"></div><div id="rightside-config-show"><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Core/">Core</a>
+                    
+                      <a class="hover-with-bg" href="/categories/Core/Framework/">Framework</a>
+                    
+                      <a class="hover-with-bg" href="/categories/Core/Framework/Spring/">Spring</a>
+                    
+                      <a class="hover-with-bg" href="/categories/Core/Framework/Spring/SpringBoot/">SpringBoot</a>
+                    
+                      <a class="hover-with-bg" href="/categories/Core/Framework/Spring/SpringBoot/%E6%B3%A8%E8%A7%A3/">注解</a>
+                    
+                  </div>
+                
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/01/05/Core/Framework/Spring/SpringCloud/README/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">README</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/01/05/Core/Framework/Spring/SpringBoot/%E6%B3%A8%E8%A7%A3/ControllerAdvice/">
+                        <span class="hidden-mobile">ControllerAdvice</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+    
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
