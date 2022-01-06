@@ -25,8 +25,8 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://czk997.github.io/2022/01/06/Core/Java/1.%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/Java%E6%A0%B8%E5%BF%83%E7%B1%BB/Java%E6%A0%B8%E5%BF%83%E7%B1%BB.assets/image-20211202155038806.png">
 <meta property="og:image" content="https://czk997.github.io/2022/01/06/Core/Java/1.%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/Java%E6%A0%B8%E5%BF%83%E7%B1%BB/Java%E6%A0%B8%E5%BF%83%E7%B1%BB.assets/image-20211125161917124.png">
-<meta property="article:published_time" content="2022-01-06T09:42:50.029Z">
-<meta property="article:modified_time" content="2022-01-06T09:42:50.029Z">
+<meta property="article:published_time" content="2022-01-06T09:43:58.884Z">
+<meta property="article:modified_time" content="2022-01-06T09:43:58.884Z">
 <meta property="article:author" content="czk997">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://czk997.github.io/2022/01/06/Core/Java/1.%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/Java%E6%A0%B8%E5%BF%83%E7%B1%BB/Java%E6%A0%B8%E5%BF%83%E7%B1%BB.assets/image-20211202155038806.png">
@@ -188,8 +188,8 @@
   
     <span class="post-meta">
       <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-      <time datetime="2022-01-06 17:42" pubdate>
-        星期四, 一月 6日 2022, 5:42 下午
+      <time datetime="2022-01-06 17:43" pubdate>
+        星期四, 一月 6日 2022, 5:43 下午
       </time>
     </span>
   
@@ -396,6 +396,7 @@
 <li>基本类型：<code>byte</code>，<code>short</code>，<code>int</code>，<code>long</code>，<code>boolean</code>，<code>float</code>，<code>double</code>，<code>char</code></li>
 <li>引用类型：所有<code>class</code>和<code>interface</code>类型</li>
 </ul>
+<h4 id="int转char的坑"><a href="#int转char的坑" class="headerlink" title="int转char的坑"></a>int转char的坑</h4><p>使用int直接转换为char的方式为什么不对哪？ 嗯，要回答这个问题需要弄明白char的本质了 <a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html">https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html</a> char: The char data type is a single 16-bit Unicode character. It has a minimum value of ‘\u0000’ (or 0) and a maximum value of ‘\uffff’ (or 65,535 inclusive). char这种简单的java数据类型特点如下： 1：是java语言中8种基本数据类型中的一种 2：它占两个字节十六位 3：最小值是0，最大值是65535 4：它可以通过单引号包装起来表示，比如：‘1’、‘A’、‘中’，也可以使用0<del>65535十进制（其他进制的数也可以）的整数表示，也可以使用‘\u0000’</del>‘\uffff’表示 5：它的默认值是’\u0000’（或者0） 6：只能是单个字符，多了，没有都不行（空格也是一种字符） 当使用int类型的数据强转为char类型数据的时候，由于int数据类型是占四个字节的数据，（当int的值不在char类型的范围的时候会失去一定位数）此时char类型的数据值是int类型的值所对应的Unicode编码表中所对应的字符。</p>
 <p>引用类型可以赋值为<code>null</code>，表示空，但基本类型不能赋值为<code>null</code>：</p>
 <figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs dart"><span class="hljs-built_in">String</span> s = <span class="hljs-keyword">null</span>;<br><span class="hljs-built_in">int</span> n = <span class="hljs-keyword">null</span>; <span class="hljs-comment">// compile error!</span><br></code></pre></td></tr></table></figure>
 
@@ -746,21 +747,15 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2022/01/06/Core/Java/2.%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E5%9F%BA%E7%A1%80/">
+                      <a href="/2022/01/06/Core/Framework/Spring/SpringBoot/%E6%B3%A8%E8%A7%A3/ControllerAdvice/">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">异常处理基础</span>
+                        <span class="hidden-mobile">ControllerAdvice</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
                   </article>
                   <article class="post-next col-6">
                     
-                    
-                      <a href="/2022/01/06/Core/Java/1.%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E5%9F%BA%E7%A1%80/">
-                        <span class="hidden-mobile">面向对象基础</span>
-                        <span class="visible-mobile">下一篇</span>
-                        <i class="iconfont icon-arrowright"></i>
-                      </a>
                     
                   </article>
                 </div>
